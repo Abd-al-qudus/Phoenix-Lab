@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "148765587764",
+    "firebase_url": "https://flutter-pharmacy-app-default-rtdb.firebaseio.com",
+    "project_id": "flutter-pharmacy-app",
+    "storage_bucket": "flutter-pharmacy-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148765587764:android:62bfcf9ecd2cd35861cd61",
+        "android_client_info": {
+          "package_name": "com.example.newapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "148765587764-lf7llkeqbaodcie1u15k4jisurj9mbl7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.newapp",
+            "certificate_hash": "5659678f611776a1a097e9aa0031d964166ab295"
+          }
+        },
+        {
+          "client_id": "148765587764-31pvp1nf60909q8ebktdd7tli3q6mh7p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXytHo3fXW0PzgoM9idqyU6ZtcD_ONh0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "148765587764-31pvp1nf60909q8ebktdd7tli3q6mh7p.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "148765587764-0cknqn5g8mpvteinkif7uj8i73dgv7or.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.newapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
