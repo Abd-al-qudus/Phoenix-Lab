@@ -104,23 +104,45 @@ class _PharmacyDrugOveriviewBuilderState
                     ),
                     suffixIcon: IconButton(
                       onPressed: () {
-                        var emptyList = products.values
-                            .where((element) => element)
-                            .contains('paracetamol');
-                        List emptyList2 = [];
+                        final result = [];
+                        for (var e in analgestic.keys) {
+                          result.add(analgestic[e]);
+                        }
+                        for (var e in antidote.keys) {
+                          result.add(antidote[e]);
+                        }
+                        for (var e in antiInfectional.keys) {
+                          result.add(antiInfectional[e]);
+                        }
+                        for (var e in antiLeprosy.keys) {
+                          result.add(antiLeprosy[e]);
+                        }
+                        for (var e in antibacterial.keys) {
+                          result.add(antibacterial[e]);
+                        }
+                        for (var e in others.keys) {
+                          result.add(others[e]);
+                        }
+                        for (var e in antiEpileptic.keys) {
+                          result.add(antiEpileptic[e]);
+                        }
+                        for (var e in injectable.keys) {
+                          result.add(injectable[e]);
+                        }
+                        for (var e in inhalational.keys) {
+                          result.add(inhalational[e]);
+                        }
 
-                        print(emptyList);
+                        final searchedElementList = result
+                            .where(
+                              (element) =>
+                                  element['name'].contains(searchText.text),
+                            )
+                            .toList();
                         // print(products.values.toList());
                         Navigator.of(context).pushNamed(
                           PharmacySearchScreen.routeName,
-                          arguments: products.values
-                              .toList()
-                              .where(
-                                (element) => (element as Map)
-                                    .values
-                                    .contains(searchText),
-                              )
-                              .toList(),
+                          arguments: searchedElementList,
                         );
                       },
                       icon: const Icon(
@@ -204,7 +226,15 @@ class _PharmacyDrugOveriviewBuilderState
                                           'status': others.values
                                               .toList()[index]['status'],
                                         },
-                                      );
+                                      ).then((value) {
+                                        if (value != null) {
+                                          setState(() {
+                                            _products =
+                                                httpRequest.getAllProducts();
+                                          });
+                                        }
+                                        return;
+                                      });
                                     },
                                     child: const Text('Edit this')),
                               ),
@@ -215,7 +245,17 @@ class _PharmacyDrugOveriviewBuilderState
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pushNamed(
                                           AddDrugScreen.routeName,
-                                          arguments: {'category': 'others'});
+                                          arguments: {
+                                            'category': 'others'
+                                          }).then((value) {
+                                        if (value != null) {
+                                          setState(() {
+                                            _products =
+                                                httpRequest.getAllProducts();
+                                          });
+                                        }
+                                        return;
+                                      });
                                     }),
                               ),
                               PopupMenuItem(
@@ -492,7 +532,15 @@ class _PharmacyDrugOveriviewBuilderState
                                               'status': inhalational.values
                                                   .toList()[index]['status'],
                                             },
-                                          );
+                                          ).then((value) {
+                                            if (value != null) {
+                                              setState(() {
+                                                _products = httpRequest
+                                                    .getAllProducts();
+                                              });
+                                            }
+                                            return;
+                                          });
                                         },
                                         child: const Text('Edit this'))),
                                 PopupMenuItem(
@@ -504,7 +552,14 @@ class _PharmacyDrugOveriviewBuilderState
                                             AddDrugScreen.routeName,
                                             arguments: {
                                               'category': 'inhalational',
+                                            }).then((value) {
+                                          if (value != null) {
+                                            setState(() {
+                                              _products =
+                                                  httpRequest.getAllProducts();
                                             });
+                                          }
+                                        });
                                       }),
                                 ),
                                 PopupMenuItem(

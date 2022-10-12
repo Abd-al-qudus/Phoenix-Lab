@@ -16,20 +16,24 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
   // ignore: prefer_typing_uninitialized_variables
   var purchaseDrugList;
   Widget _buildPurchaseOverview(
-      String name, double price, String count, VoidCallback onPressed) {
+    String name,
+    double price,
+    int count,
+    HttpRequests http,
+    PurchaseDrugList drugList,
+    String id,
+  ) {
     return Card(
       child: ListTile(
         onLongPress: () => showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('confirm action'),
-            content: Text('remove $name x1'),
-            actions: [
-              TextButton(
-                onPressed: onPressed,
-                child: const Text('okay'),
-              ),
-            ],
+          builder: (context) => ShowDialogContentAlert(
+            count: count,
+            name: name,
+            price: price,
+            http: http,
+            drugList: drugList,
+            id: id,
           ),
         ),
         leading: CircleAvatar(
@@ -61,7 +65,7 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
           height: 20,
           width: 25,
           child: FittedBox(
-            child: Text('${int.parse(count) * price}'),
+            child: Text('${count * price}'),
           ),
         ),
       ),
@@ -70,7 +74,6 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final httpRequests = HttpRequests();
     double grandTotal = 0;
     final drugProvider = Provider.of<PurchaseDrugList>(context);
     final purchaseDrugList = drugProvider.purchaseItemList;
@@ -134,89 +137,25 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
                   child: _buildPurchaseOverview(
                     purchaseDrugList[index].name,
                     purchaseDrugList[index].price,
-                    purchaseDrugList[index].count.toString(),
-                    () async {
-                      final String name = purchaseDrugList[index].name;
-                      final String id = purchaseDrugList[index].id;
-                      final double price = purchaseDrugList[index].price;
-                      await httpRequest
-                          .reduceCartItem(
-                        purchaseDrugList[index].id,
-                        purchaseDrugList[index].name,
-                      )
-                          .then((value) {
-                        drugProvider.reducePurchaseItem(
-                          drugProvider.purchaseItemList[index].id,
-                        );
-                        Navigator.of(context).pop();
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: const Duration(seconds: 1),
-                            content: const Text('item removed'),
-                            action: SnackBarAction(
-                              label: 'undo',
-                              onPressed: () async {
-                                httpRequest
-                                    .uploadCartItem(
-                                      name,
-                                      price,
-                                      1,
-                                      id,
-                                    )
-                                    .then(
-                                      (_) => drugProvider.addPurchaseItem(
-                                        id,
-                                        name,
-                                        price,
-                                      ),
-                                    );
-                              },
-                            ),
-                          ),
-                        );
-                      });
-                    },
+                    purchaseDrugList[index].count,
+                    httpRequest,
+                    drugProvider,
+                    purchaseDrugList[index].id,
                   ),
                   confirmDismiss: (direction) async {
                     return await showDialog(
                       barrierDismissible: false,
                       context: context,
-                      builder: (context) => AlertDialog(
-                        actionsAlignment: MainAxisAlignment.spaceBetween,
-                        title: const Text('confirm action'),
-                        content: Text(
-                            'do you want to completely remove ${purchaseDrugList[index].name} x${purchaseDrugList[index].count}'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('back'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              await httpRequest
-                                  .removeCartItem(
-                                purchaseDrugList[index].name,
-                                purchaseDrugList[index].id,
-                              )
-                                  .then((value) {
-                                drugProvider.removeElement(
-                                  purchaseDrugList[index].id,
-                                );
-                                Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    duration: Duration(seconds: 1),
-                                    content: Text('item removed'),
-                                  ),
-                                );
-                              });
-                            },
-                            child: const Text('okay'),
-                          ),
-                        ],
+                      builder: (context) => SizedBox(
+                        width: 200,
+                        height: 100,
+                        child: ShowDialogContent(
+                          count: purchaseDrugList[index].count,
+                          name: purchaseDrugList[index].name,
+                          id: purchaseDrugList[index].id,
+                          http: httpRequest,
+                          drugList: drugProvider,
+                        ),
                       ),
                     );
                   },
@@ -228,5 +167,181 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
         ],
       ),
     );
+  }
+}
+
+class ShowDialogContent extends StatefulWidget {
+  final String name;
+  final String id;
+  final int count;
+  final PurchaseDrugList drugList;
+  final HttpRequests http;
+
+  const ShowDialogContent({
+    Key? key,
+    required this.http,
+    required this.name,
+    required this.drugList,
+    required this.id,
+    required this.count,
+  }) : super(key: key);
+
+  @override
+  State<ShowDialogContent> createState() => _ShowDialogContentState();
+}
+
+class _ShowDialogContentState extends State<ShowDialogContent> {
+  bool isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? const AlertDialog(
+            content: SizedBox(
+              width: 200,
+              height: 100,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          )
+        : AlertDialog(
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            title: const Text('confirm action'),
+            content: Text(
+                'do you want to completely remove ${widget.name} x${widget.count}'),
+            actions: [
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await widget.http
+                        .removeCartItem(
+                      widget.name,
+                      widget.id,
+                    )
+                        .then((value) {
+                      widget.drugList.removeElement(
+                        widget.id,
+                      );
+                      setState(() {
+                        isLoading = true;
+                      });
+                      Navigator.of(context).pop();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 1),
+                          content: Text('item removed'),
+                        ),
+                      );
+                    });
+                  },
+                  child: const Text('okay'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('back'),
+                ),
+              ]);
+  }
+}
+
+class ShowDialogContentAlert extends StatefulWidget {
+  final String name;
+  final String id;
+  final int count;
+  final double price;
+  final PurchaseDrugList drugList;
+  final HttpRequests http;
+
+  const ShowDialogContentAlert({
+    Key? key,
+    required this.http,
+    required this.name,
+    required this.drugList,
+    required this.id,
+    required this.count,
+    required this.price,
+  }) : super(key: key);
+
+  @override
+  State<ShowDialogContentAlert> createState() => _ShowDialogContentAlertState();
+}
+
+class _ShowDialogContentAlertState extends State<ShowDialogContentAlert> {
+  bool isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? const AlertDialog(
+            content: SizedBox(
+              width: 200,
+              height: 100,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          )
+        : AlertDialog(
+            actionsAlignment: MainAxisAlignment.spaceAround,
+            title: const Text('confirm action'),
+            content: Text('remove ${widget.name} x1'),
+            actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('back'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await widget.http
+                        .reduceCartItem(
+                      widget.id,
+                      widget.name,
+                    )
+                        .then((value) {
+                      widget.drugList.reducePurchaseItem(
+                        widget.id,
+                      );
+                    }).then((value) {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          duration: const Duration(seconds: 1),
+                          content: const Text('item removed'),
+                          action: SnackBarAction(
+                            label: 'undo',
+                            onPressed: () async {
+                              widget.http
+                                  .uploadCartItem(
+                                    widget.name,
+                                    widget.price,
+                                    1,
+                                    widget.id,
+                                  )
+                                  .then(
+                                    (_) => widget.drugList.addPurchaseItem(
+                                      widget.id,
+                                      widget.name,
+                                      widget.price,
+                                    ),
+                                  );
+                            },
+                          ),
+                        ),
+                      );
+                    });
+                  },
+                  child: const Text('okay'),
+                ),
+              ]);
   }
 }

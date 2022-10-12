@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+
+import 'package:newapp/models/database_provider.dart';
 import 'package:newapp/models/user.dart';
 
 class AuthenticationProvider {
+  final dbProvider = DatabaseProvider();
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
   User? _userFromFirebase(auth.User? user) {
@@ -23,7 +28,6 @@ class AuthenticationProvider {
         password: password,
       )
           .then((response) {
-        print(response);
         return 'success';
       });
     } on auth.FirebaseAuthException catch (e) {
@@ -42,9 +46,10 @@ class AuthenticationProvider {
         email: email,
         password: password,
       )
-          .then((resopnse) {
-        print(resopnse.user!.uid);
-        return 'success';
+          .then((response) async {
+        return await dbProvider.saveUserId(email, response.user!.uid).then((_) {
+          return 'success';
+        });
       });
     } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

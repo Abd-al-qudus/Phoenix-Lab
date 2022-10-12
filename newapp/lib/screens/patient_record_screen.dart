@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:newapp/models/user.dart';
+import '../models/database_provider.dart';
+
 import '../models/http_provider.dart';
 import '../models/patient_details_model.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,7 @@ class PatientRecordScreen extends StatefulWidget {
 }
 
 class _PatientRecordScreenState extends State<PatientRecordScreen> {
+  final dbProvider = DatabaseProvider();
   final _formKey = GlobalKey<FormState>();
   final Map<dynamic, dynamic> _records = {};
   final httpRequest = HttpRequests();
@@ -153,6 +156,7 @@ class _PatientRecordScreenState extends State<PatientRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<User?>(context);
     final recordModel = Provider.of<PatientRecordProvider>(context);
     final initialRecord = ModalRoute.of(context)!.settings.arguments as Map;
     final mediaQueryData = MediaQuery.of(context).size;
@@ -328,36 +332,14 @@ class _PatientRecordScreenState extends State<PatientRecordScreen> {
                               ? showDialog(
                                   barrierDismissible: false,
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('done'),
-                                    content:
-                                        const Text('sucessfully submitted'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () async {
-                                          _storeRecords();
-                                          _records.addAll(initialRecord);
-                                          await httpRequest
-                                              .addRecord(_records)
-                                              .then((value) async {
-                                            final prefs =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            final recordKey =
-                                                value.values.first.toString();
-                                            await prefs
-                                                .setString(
-                                                    'recordKey', recordKey)
-                                                .then((value) {
-                                              recordModel.addRecordId(_records);
-                                              Navigator.of(context).pop();
-                                              Navigator.of(context).pop();
-                                            });
-                                          });
-                                        },
-                                        child: const Text('ok'),
-                                      ),
-                                    ],
+                                  builder: (context) => ShowDialogContent(
+                                    storeRecords: _storeRecords,
+                                    newRecord: _records,
+                                    initRecord: initialRecord,
+                                    dbProv: dbProvider,
+                                    http: httpRequest,
+                                    email: authProvider!.email,
+                                    recordModel: recordModel,
                                   ),
                                 )
                               : showDialog(
@@ -397,5 +379,102 @@ class _PatientRecordScreenState extends State<PatientRecordScreen> {
         ],
       ),
     );
+  }
+}
+
+class ShowDialogContent extends StatefulWidget {
+  final String email;
+  final VoidCallback storeRecords;
+  final Map newRecord;
+  final Map initRecord;
+  final DatabaseProvider dbProv;
+  final HttpRequests http;
+  final PatientRecordProvider recordModel;
+  const ShowDialogContent({
+    Key? key,
+    required this.storeRecords,
+    required this.newRecord,
+    required this.initRecord,
+    required this.dbProv,
+    required this.http,
+    required this.email,
+    required this.recordModel,
+  }) : super(key: key);
+
+  @override
+  State<ShowDialogContent> createState() => _ShowDialogContentState();
+}
+
+class _ShowDialogContentState extends State<ShowDialogContent> {
+  bool isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? const AlertDialog(
+            content: SizedBox(
+              height: 100,
+              width: 200,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          )
+        : AlertDialog(
+            content: const Text('confirm submission'),
+            actionsAlignment: MainAxisAlignment.spaceAround,
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  widget.storeRecords();
+                  widget.newRecord.addAll(widget.initRecord);
+                  await widget.dbProv
+                      .getUserId(widget.email)
+                      .then((userId) async {
+                    await widget.http
+                        .addRecord(widget.newRecord, userId)
+                        .then((value) async {
+                      if (value != null && userId != null) {
+                        final recordKey = value.values.first.toString();
+                        await widget.dbProv
+                            .saveRecordId(userId, recordKey)
+                            .then((value) {
+                          widget.recordModel.addRecordId(widget.newRecord);
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          setState(() {
+                            isLoading = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('record uploaded successfully'),
+                            ),
+                          );
+                        });
+                      } else {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('record upload failed'),
+                          ),
+                        );
+                      }
+                    });
+                  });
+                },
+                child: const Text('ok'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('back'),
+              ),
+            ],
+          );
   }
 }

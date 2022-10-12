@@ -171,7 +171,7 @@ class _AddDrugOverviewState extends State<AddDrugOverview> {
                                 imageUrl.text,
                                 addNewDrug,
                               );
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pop(true);
                             } else {
                               setState(() {
                                 isLoading = false;

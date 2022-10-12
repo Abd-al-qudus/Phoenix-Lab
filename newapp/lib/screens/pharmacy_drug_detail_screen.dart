@@ -21,86 +21,96 @@ class _DrugOverviewScreenState extends State<DrugOverviewScreen> {
     final Map<dynamic, dynamic> detailMap =
         ModalRoute.of(context)!.settings.arguments as Map;
     final drugProvider = Provider.of<PurchaseDrugList>(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          detailMap['name'].toString().toUpperCase(),
-          style: const TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: detailMap['status']
-            ? () => showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Center(child: Text('confirm action')),
-                    content: const Text(
-                        'do you want to add this item to your purchase list?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          await httpRequest
-                              .uploadCartItem(
+    return StatefulBuilder(
+      builder: (context, setState) => isLoading
+          ? Scaffold(
+              appBar: AppBar(),
+              body: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  detailMap['name'].toString().toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                centerTitle: true,
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: detailMap['status']
+                    ? () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await httpRequest
+                            .uploadCartItem(
+                          detailMap['name'].toString(),
+                          double.parse(detailMap['price']),
+                          1,
+                          detailMap['id'].toString(),
+                        )
+                            .then((value) {
+                          drugProvider.addPurchaseItem(
+                            detailMap['id'].toString(),
                             detailMap['name'].toString(),
                             double.parse(detailMap['price']),
-                            1,
-                            detailMap['id'].toString(),
-                          )
-                              .then((value) {
-                            drugProvider.addPurchaseItem(
-                              detailMap['id'].toString(),
-                              detailMap['name'].toString(),
-                              double.parse(detailMap['price']),
-                            );
-                            Navigator.of(context).pop();
-                            setState(() {
-                              isLoading = false;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                duration: const Duration(seconds: 1),
-                                content: const Text('item added'),
-                                action: SnackBarAction(
-                                    label: 'undo',
-                                    onPressed: () async {
-                                      httpRequest
-                                          .reduceCartItem(
-                                        detailMap['id'].toString(),
-                                        detailMap['name'].toString(),
-                                      )
-                                          .then((_) {
-                                        drugProvider.reducePurchaseItem(
-                                          detailMap['id'].toString(),
-                                        );
-                                      });
-                                    }),
-                              ),
-                            );
+                          );
+
+                          setState(() {
+                            isLoading = false;
                           });
-                        },
-                        child: const Text('ok'),
-                      )
-                    ],
-                    actionsAlignment: MainAxisAlignment.end,
-                  ),
-                )
-            : () {},
-        child: const Icon(Icons.add),
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : SingleChildScrollView(
-              child: PharmacyDrugDetailsBuilder(
-                details: detailMap,
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            duration: Duration(seconds: 1),
+                            content: Text('item added'),
+                            // action: SnackBarAction(
+                            //     label: 'undo',
+                            //     onPressed: () async {
+                            //       setState(() {
+                            //         isLoading = true;
+                            //       });
+                            //       httpRequest
+                            //           .reduceCartItem(
+                            //         detailMap['id'].toString(),
+                            //         detailMap['name'].toString(),
+                            //       )
+                            //           .then((_) {
+                            //         drugProvider.reducePurchaseItem(
+                            //           detailMap['id'].toString(),
+                            //         );
+                            //         setState(() {
+                            //           isLoading = false;
+                            //         });
+                            //       });
+                            //     }),
+                          ));
+                        });
+                      }
+                    : () => showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('oops'),
+                            content: const Text('item not available'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('okay'),
+                              ),
+                            ],
+                          ),
+                        ),
+                child: const Icon(Icons.add),
+              ),
+              body: SingleChildScrollView(
+                child: PharmacyDrugDetailsBuilder(
+                  details: detailMap,
+                ),
               ),
             ),
     );

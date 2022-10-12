@@ -29,18 +29,19 @@ class PharmacySearchScreen extends StatelessWidget {
                       onTap: () => Navigator.of(context).pushReplacementNamed(
                           DrugOverviewScreen.routeName,
                           arguments: {
-                            'id': searchResult[index].id,
-                            'name': searchResult[index].name,
-                            'price': searchResult[index].price,
-                            'description': searchResult[index].description,
-                            'dosage': searchResult[index].dosage,
-                            'imageUrl': searchResult[index].imageUrl,
+                            'id': searchResult[index]['id'],
+                            'name': searchResult[index]['name'],
+                            'price': searchResult[index]['price'],
+                            'description': searchResult[index]['description'],
+                            'dosage': searchResult[index]['dosage'],
+                            'imageUrl': searchResult[index]['imageUrl'],
+                            'status': searchResult[index]['status'],
                           }),
-                      title: Text(searchResult[index].name),
-                      subtitle: Text(searchResult[index].description),
+                      title: Text(searchResult[index]['name']),
+                      subtitle: Text(searchResult[index]['description']),
                       leading: CircleAvatar(
                         child: FittedBox(
-                          child: Text('${searchResult[index].price}'),
+                          child: Text('${searchResult[index]['price']}'),
                         ),
                       ),
                     ))

@@ -193,7 +193,7 @@ class _DrugEditProfileState extends State<DrugEditProfile> {
                                 id: widget.productDetails['id'],
                                 category: addNewDrug);
 
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(true);
                           } else {
                             setState(() {
                               isLoading = false;

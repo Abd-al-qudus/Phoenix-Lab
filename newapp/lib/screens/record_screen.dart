@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../models/database_provider.dart';
 
-import '../models/patient_details_model.dart';
 import '../screens/patient_record_screen.dart';
 
 class RecordScreen extends StatefulWidget {
@@ -116,25 +114,10 @@ class _RecordScreenState extends State<RecordScreen> {
     records['regTime'] = regTime.text;
   }
 
-  Future _record() async {
-    return await SharedPreferences.getInstance().then((pref) {
-      final key = pref.getString('recordKey');
-      if (key != null) {
-        return Future.delayed(const Duration(seconds: 0), () {
-          return Future.value('true');
-        });
-      } else {
-        return Future.delayed(const Duration(seconds: 0), () {
-          return Future.value();
-        });
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    bool checker = true;
-    final List record = [];
+    final String? recordId =
+        ModalRoute.of(context)!.settings.arguments as String?;
     final mediaQueryData = MediaQuery.of(context).size;
     final screenWidth = mediaQueryData.width;
     final screenHeight = mediaQueryData.height;
@@ -151,116 +134,87 @@ class _RecordScreenState extends State<RecordScreen> {
       ),
 
       // ignore: unrelated_type_equality_checks
-      body: FutureBuilder(
-          future: _record(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              checker = false;
-              return SizedBox(
-                width: screenWidth,
-                height: screenHeight,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              _cardBuilder(
-                                'Hospital Address',
-                                hospitalAdd,
-                              ),
-                              _cardBuilder(
-                                'Street Address',
-                                streetAdd,
-                              ),
-                              _cardBuilder(
-                                'Street Address cont.',
-                                streetAddCont,
-                              ),
-                              _cardBuilder(
-                                'City',
-                                city,
-                              ),
-                              _cardBuilder(
-                                'State',
-                                state,
-                              ),
-                              _cardBuilder(
-                                'Postal Code',
-                                postalCode,
-                                textType: TextInputType.number,
-                              ),
-                              _cardBuilder(
-                                'Country',
-                                country,
-                              ),
-                              _cardBuilder(
-                                'Hosp. Area Code',
-                                hospAreaCode,
-                                textType: TextInputType.number,
-                              ),
-                              _cardBuilder(
-                                'Hosp. Phone Number',
-                                hospPhoneNumber,
-                                textType: TextInputType.number,
-                              ),
-                              _cardBuilder(
-                                'Chart Number',
-                                chartNumber,
-                                textType: TextInputType.number,
-                              ),
-                              _cardBuilder(
-                                'Regr. Clerk Number',
-                                regClerkNumber,
-                                textType: TextInputType.number,
-                              ),
-                              _cardBuilder(
-                                'Reg. Location',
-                                registLocation,
-                              ),
-                              _cardBuilder(
-                                'Full Date DD/MM/YY',
-                                regDate,
-                              ),
-                              _cardBuilder(
-                                'Reg. Time XX/XX AM/PM',
-                                regTime,
-                              ),
-                            ],
-                          ),
+      body: recordId == null
+          ? SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            _cardBuilder(
+                              'Hospital Address',
+                              hospitalAdd,
+                            ),
+                            _cardBuilder(
+                              'Street Address',
+                              streetAdd,
+                            ),
+                            _cardBuilder(
+                              'Street Address cont.',
+                              streetAddCont,
+                            ),
+                            _cardBuilder(
+                              'City',
+                              city,
+                            ),
+                            _cardBuilder(
+                              'State',
+                              state,
+                            ),
+                            _cardBuilder(
+                              'Postal Code',
+                              postalCode,
+                              textType: TextInputType.number,
+                            ),
+                            _cardBuilder(
+                              'Country',
+                              country,
+                            ),
+                            _cardBuilder(
+                              'Hosp. Area Code',
+                              hospAreaCode,
+                              textType: TextInputType.number,
+                            ),
+                            _cardBuilder(
+                              'Hosp. Phone Number',
+                              hospPhoneNumber,
+                              textType: TextInputType.number,
+                            ),
+                            _cardBuilder(
+                              'Chart Number',
+                              chartNumber,
+                              textType: TextInputType.number,
+                            ),
+                            _cardBuilder(
+                              'Regr. Clerk Number',
+                              regClerkNumber,
+                              textType: TextInputType.number,
+                            ),
+                            _cardBuilder(
+                              'Reg. Location',
+                              registLocation,
+                            ),
+                            _cardBuilder(
+                              'Full Date DD/MM/YY',
+                              regDate,
+                            ),
+                            _cardBuilder(
+                              'Reg. Time XX/XX AM/PM',
+                              regTime,
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            } else {
-              final data = snapshot.data as String;
-              record.add(data);
-              return const Center(
-                child: Text('You\'ve updated your records!!!'),
-              );
-            }
-          }),
-      bottomNavigationBar: checker == false
-          ? BottomNavigationBar(
-              elevation: 20,
-              currentIndex: 1,
-              items: [
-                BottomNavigationBarItem(
-                  icon: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {},
-                  ),
-                  label: 'BACK',
-                ),
-                BottomNavigationBarItem(
-                  icon: IconButton(
+                    ),
+                    IconButton(
                       icon: const Icon(Icons.arrow_forward),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
@@ -270,12 +224,15 @@ class _RecordScreenState extends State<RecordScreen> {
                             arguments: records,
                           );
                         }
-                      }),
-                  label: 'NEXT',
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             )
-          : const SizedBox(),
+          : const Center(
+              child: Text('You\'ve updated your records!!!'),
+            ),
     );
   }
 }

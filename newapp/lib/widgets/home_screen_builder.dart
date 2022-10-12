@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:newapp/models/database_provider.dart';
+import 'package:newapp/models/user.dart';
+import 'package:provider/provider.dart';
 
 import '../models/http_provider.dart';
 import '../screens/clinic_home_screen.dart';
@@ -10,10 +13,14 @@ import '../widgets/build_home_screen_cards.dart';
 import '../widgets/build_large_container.dart';
 
 class HomeScreenBuilder extends StatelessWidget {
-  const HomeScreenBuilder({Key? key}) : super(key: key);
+  const HomeScreenBuilder({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final dbProvider = DatabaseProvider();
+    final emailProvider = Provider.of<User?>(context);
     var imageUrlList = [];
     final httpRequest = HttpRequests();
     final mediaQueryData = MediaQuery.of(context).size;
@@ -84,8 +91,24 @@ class HomeScreenBuilder extends StatelessWidget {
                 height: screenHeight * 0.2,
                 width: screenWidth,
                 title: 'record',
-                onPressed: () {
-                  Navigator.of(context).pushNamed(RecordScreen.routeName);
+                onPressed: () async {
+                  await dbProvider
+                      .getUserId(emailProvider!.email)
+                      .then((userId) async {
+                    await dbProvider.getRecordId(userId).then((recordId) {
+                      if (recordId != null) {
+                        Navigator.of(context).pushNamed(
+                          RecordScreen.routeName,
+                          arguments: recordId,
+                        );
+                      } else {
+                        Navigator.of(context).pushNamed(
+                          RecordScreen.routeName,
+                          arguments: null,
+                        );
+                      }
+                    });
+                  });
                 },
                 fontSize: 18,
                 imageUrl: imageUrlList[0]['record'],

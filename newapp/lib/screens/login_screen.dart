@@ -155,15 +155,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 email.text,
                                 password.text,
                               )
-                                  .then((code) async {
+                                  .then((code) {
                                 if (code == 'success') {
-                                  await dbService
-                                      .saveUserLoginStatus(true)
-                                      .then(
-                                        (_) => Navigator.of(context)
-                                            .pushReplacementNamed(
-                                                HomePage.routeName),
-                                      );
+                                  Navigator.of(context).pushReplacementNamed(
+                                      HomePage.routeName,
+                                      arguments: email);
                                 } else {
                                   setState(() {
                                     isLoading = false;

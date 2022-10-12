@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:newapp/firebase_options.dart';
+import 'package:newapp/models/auth_provider.dart';
 import 'package:newapp/models/database_provider.dart';
+import 'package:newapp/models/user.dart';
+import 'package:newapp/screens/auth_state_wrapper.dart';
 import 'package:newapp/screens/login_screen.dart';
 import 'package:newapp/screens/register_screen.dart';
 import 'package:provider/provider.dart';
@@ -72,70 +75,64 @@ class _MyAppState extends State<MyApp> {
           create: (context) => PatientRecordProvider(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            //const Color.fromARGB(255, 211, 245, 221)
-            //Color.fromARGB(255, 248, 248, 248),
-            //const Color.fromARGB(255, 247, 247, 209)
-            canvasColor: const Color.fromARGB(255, 247, 247, 209),
-            primaryColor: Colors.black54,
-            primarySwatch: Colors.teal,
-            fontFamily: 'PT_Sans'),
-        //_isLoggedIn ? const HomePage() : const LoginScreen(),
-        home: FutureBuilder(
-            future: getUserSignedInStatus(),
-            builder: (context, snapshot) {
-              if (snapshot.data == true) {
-                return const HomePage();
-              } else if (snapshot.data == false) {
-                return const LoginScreen();
-              } else {
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-            }),
-        routes: {
-          HomePage.routeName: (context) => const HomePage(),
-          RecordScreen.routeName: (context) => const RecordScreen(),
-          PatientRecordScreen.routeName: (context) =>
-              const PatientRecordScreen(),
-          ClinicHomePage.routeName: (context) => const ClinicHomePage(),
-          HospitalStaticMap.routeName: (context) => const HospitalStaticMap(),
-          PharmacyDrugOverviewScreen.routeName: (context) =>
-              const PharmacyDrugOverviewScreen(),
-          DrugOverviewScreen.routeName: (context) => const DrugOverviewScreen(),
-          PaymentReceiptScreen.routeName: (context) =>
-              const PaymentReceiptScreen(),
-          PurchaseListScreen.routeName: (context) => const PurchaseListScreen(),
-          AnalgesticScreen.routeName: (context) => const AnalgesticScreen(),
-          AntiBacterialScreen.routeName: (context) =>
-              const AntiBacterialScreen(),
-          AntiEpilepticScreen.routeName: (context) =>
-              const AntiEpilepticScreen(),
-          AntiInfectionalScreen.routeName: (context) =>
-              const AntiInfectionalScreen(),
-          AntiLeprosyScreen.routeName: (context) => const AntiLeprosyScreen(),
-          AntidoteScreen.routeName: (context) => const AntidoteScreen(),
-          InjectableScreen.routeName: (context) => const InjectableScreen(),
-          InhalationalScreen.routeName: (context) => const InhalationalScreen(),
-          PharmacySearchScreen.routeName: (context) =>
-              const PharmacySearchScreen(),
-          ProfileScreen.routeName: (context) => const ProfileScreen(),
-          EditDrugScreen.routeName: (context) => const EditDrugScreen(),
-          AddDrugScreen.routeName: (context) => const AddDrugScreen(),
-          AddDoctorInfo.routeName: (context) => const AddDoctorInfo(),
-          EditDoctorInfo.routeName: (context) => const EditDoctorInfo(),
-          ConsultationScreen.routeName: (context) => const ConsultationScreen(),
-          ChatWithDoctorScreen.routeName: (context) =>
-              const ChatWithDoctorScreen(),
-          SendEmailScreen.routeName: (context) => const SendEmailScreen(),
-          LoginScreen.routeName: (context) => const LoginScreen(),
-          RegisterScreen.routeName: (context) => const RegisterScreen(),
-        },
+      child: StreamProvider<User?>.value(
+        initialData: null,
+        value: AuthenticationProvider().user,
+        builder: (context, child) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              //const Color.fromARGB(255, 211, 245, 221)
+              //Color.fromARGB(255, 248, 248, 248),
+              //const Color.fromARGB(255, 247, 247, 209)
+              canvasColor: const Color.fromARGB(255, 247, 247, 209),
+              primaryColor: Colors.black54,
+              primarySwatch: Colors.teal,
+              fontFamily: 'PT_Sans'),
+          //_isLoggedIn ? const HomePage() : const LoginScreen(),
+          home: const AuthState(),
+          routes: {
+            HomePage.routeName: (context) => const HomePage(),
+            RecordScreen.routeName: (context) => const RecordScreen(),
+            PatientRecordScreen.routeName: (context) =>
+                const PatientRecordScreen(),
+            ClinicHomePage.routeName: (context) => const ClinicHomePage(),
+            HospitalStaticMap.routeName: (context) => const HospitalStaticMap(),
+            PharmacyDrugOverviewScreen.routeName: (context) =>
+                const PharmacyDrugOverviewScreen(),
+            DrugOverviewScreen.routeName: (context) =>
+                const DrugOverviewScreen(),
+            PaymentReceiptScreen.routeName: (context) =>
+                const PaymentReceiptScreen(),
+            PurchaseListScreen.routeName: (context) =>
+                const PurchaseListScreen(),
+            AnalgesticScreen.routeName: (context) => const AnalgesticScreen(),
+            AntiBacterialScreen.routeName: (context) =>
+                const AntiBacterialScreen(),
+            AntiEpilepticScreen.routeName: (context) =>
+                const AntiEpilepticScreen(),
+            AntiInfectionalScreen.routeName: (context) =>
+                const AntiInfectionalScreen(),
+            AntiLeprosyScreen.routeName: (context) => const AntiLeprosyScreen(),
+            AntidoteScreen.routeName: (context) => const AntidoteScreen(),
+            InjectableScreen.routeName: (context) => const InjectableScreen(),
+            InhalationalScreen.routeName: (context) =>
+                const InhalationalScreen(),
+            PharmacySearchScreen.routeName: (context) =>
+                const PharmacySearchScreen(),
+            ProfileScreen.routeName: (context) => const ProfileScreen(),
+            EditDrugScreen.routeName: (context) => const EditDrugScreen(),
+            AddDrugScreen.routeName: (context) => const AddDrugScreen(),
+            AddDoctorInfo.routeName: (context) => const AddDoctorInfo(),
+            EditDoctorInfo.routeName: (context) => const EditDoctorInfo(),
+            ConsultationScreen.routeName: (context) =>
+                const ConsultationScreen(),
+            ChatWithDoctorScreen.routeName: (context) =>
+                const ChatWithDoctorScreen(),
+            SendEmailScreen.routeName: (context) => const SendEmailScreen(),
+            LoginScreen.routeName: (context) => const LoginScreen(),
+            RegisterScreen.routeName: (context) => const RegisterScreen(),
+          },
+        ),
       ),
     );
   }

@@ -42,20 +42,20 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wordMapId = ModalRoute.of(context)!.settings.arguments as List;
+    final detailsList = ModalRoute.of(context)!.settings.arguments as List;
     final httpRequest = HttpRequests();
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'USER',
+          'USER PROFILE',
           style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: wordMapId.isEmpty || wordMapId[0] == null
+      body: detailsList[0] == null || detailsList[1] == null
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -64,9 +64,8 @@ class ProfileScreen extends StatelessWidget {
                   child: TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed(
-                        RecordScreen.routeName,
-                      );
+                      Navigator.of(context).pushNamed(RecordScreen.routeName,
+                          arguments: detailsList[0]);
                     },
                     child: const Text('ADD A RECORD'),
                   ),
@@ -74,7 +73,10 @@ class ProfileScreen extends StatelessWidget {
               ],
             )
           : FutureBuilder(
-              future: httpRequest.getRecord(wordMapId[0].toString()),
+              future: httpRequest.getRecord(
+                detailsList[0].toString(),
+                detailsList[1].toString(),
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -101,6 +103,25 @@ class ProfileScreen extends StatelessWidget {
                 //     );
                 //   }
                 // }
+                if (snapshot.hasError) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Center(child: Text('No Record found!!!')),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pushNamed(
+                                RecordScreen.routeName,
+                                arguments: detailsList[0]);
+                          },
+                          child: const Text('ADD A RECORD'),
+                        ),
+                      )
+                    ],
+                  );
+                }
                 final Map<dynamic, dynamic> recordMap = snapshot.data as Map;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,7 +170,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        'USER ID: U${wordMapId[0]}',
+                        'Email : ${detailsList[2]}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,

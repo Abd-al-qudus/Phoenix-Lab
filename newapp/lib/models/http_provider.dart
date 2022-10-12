@@ -199,8 +199,8 @@ class HttpRequests {
     }
   }
 
-  Future addRecord(Map<dynamic, dynamic> records) async {
-    final requestUrl = Uri.parse('$recordUrl.json');
+  Future addRecord(Map<dynamic, dynamic> records, String userId) async {
+    final requestUrl = Uri.parse('$recordUrl/$userId.json');
     try {
       return await http
           .post(requestUrl, body: jsonEncode((records)))
@@ -217,9 +217,9 @@ class HttpRequests {
     }
   }
 
-  Future getRecord(String id) async {
+  Future getRecord(String recordId, String userId) async {
     Map<dynamic, dynamic> record = {};
-    final requestUrl = Uri.parse('$recordUrl/$id.json');
+    final requestUrl = Uri.parse('$recordUrl/$userId/$recordId.json');
     try {
       return await http.get(requestUrl).then((response) {
         if (response.statusCode < 400) {
@@ -235,8 +235,9 @@ class HttpRequests {
     }
   }
 
-  Future editRecord(String id, Map<dynamic, dynamic> records) async {
-    final requestUrl = Uri.parse('$recordUrl/$id.json');
+  Future editRecord(
+      String userId, Map<dynamic, dynamic> records, String recordId) async {
+    final requestUrl = Uri.parse('$recordUrl/$userId/$recordId.json');
     try {
       return await http
           .patch(requestUrl, body: jsonEncode((records)))
@@ -252,8 +253,8 @@ class HttpRequests {
     }
   }
 
-  Future deleteRecord(String id) async {
-    final requestUrl = Uri.parse('$recordUrl/$id.json');
+  Future deleteRecord(String recordId, String userId) async {
+    final requestUrl = Uri.parse('$recordUrl/$userId/$recordId.json');
     try {
       return await http
           .delete(requestUrl, body: jsonEncode(({})))
