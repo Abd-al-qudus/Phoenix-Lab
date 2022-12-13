@@ -17,7 +17,7 @@ class BmiScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: const BmiScreenBody(),
+      body: BmiScreenBody(),
     );
   }
 }

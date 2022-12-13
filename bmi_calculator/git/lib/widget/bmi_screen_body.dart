@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../logic/bmi_logic.dart';
 
 class BmiScreenBody extends StatefulWidget {
-  const BmiScreenBody({Key? key}) : super(key: key);
-
   @override
   State<BmiScreenBody> createState() => _BmiScreenBodyState();
 }
