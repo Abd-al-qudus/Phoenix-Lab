@@ -92,7 +92,7 @@ class DrawerBody extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: size - 5,
+          fontSize: size,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -147,6 +147,7 @@ class DrawerBody extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
             child: Padding(
@@ -155,7 +156,7 @@ class DrawerBody extends StatelessWidget {
                 bottom: size,
               ),
               child: CircleAvatar(
-                radius: size * 4,
+                radius: size * 5,
               ),
             ),
           ),
