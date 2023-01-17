@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final mSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         shadowColor: col.color3,
@@ -53,8 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuButton(itemBuilder: (context) => []),
         ],
       ),
-      drawer: DrawerBody(
-        size: size.small,
+      drawer: SingleChildScrollView(
+        child: SizedBox(
+          width: mSize.width * 0.8,
+          height: mSize.height,
+          child: DrawerBody(
+            size: size.small,
+          ),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: col.color2,
@@ -170,7 +177,7 @@ class DrawerBody extends StatelessWidget {
           _buildText(text.stdId),
           _buildText(text.department),
           _buildText(text.level),
-          _buildText(text.age),
+          // _buildText(text.age),
           _buildText(text.contact),
           const Divider(
             thickness: 4,

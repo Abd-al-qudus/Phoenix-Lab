@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:school/widgets/widget_card.dart';
+import 'package:school/screens/student_room.dart';
+import '../screens/student_record.dart';
+import '../widgets/widget_card.dart';
 import '../widgets/helpers.dart';
 
 class TeacherStdRoom extends StatelessWidget {
@@ -25,7 +27,8 @@ class TeacherStdRoom extends StatelessWidget {
       ),
       body: ListView(padding: EdgeInsets.all(size.small), children: [
         WidgetCard(
-          onTapped: () {},
+          onTapped: () =>
+              Navigator.of(context).pushNamed(StudentRecord.routeName),
           text: text.stdRecord,
           size: size.medium,
           height: height * 0.2,
@@ -46,7 +49,9 @@ class TeacherStdRoom extends StatelessWidget {
         ),
         spacers.medSpacer,
         WidgetCard(
-          onTapped: () {},
+          onTapped: () => Navigator.of(context).pushNamed(
+            StudentRoom.routeName,
+          ),
           text: text.studentRoom,
           size: size.medium,
           height: height * 0.2,

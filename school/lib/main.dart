@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../screens/teacher_test_screen.dart';
+import '../screens/quiz_performance.dart';
+import '../screens/student_perfomance.dart';
+import '../screens/student_record.dart';
 import '../screens/student_room.dart';
 import '../screens/teacher_std_room.dart';
 import '../screens/test_screen.dart';
@@ -31,6 +35,10 @@ class SchoolApp extends StatelessWidget {
         TestScreen.routeName: (context) => const TestScreen(),
         StudentRoom.routeName: (context) => const StudentRoom(),
         TeacherStdRoom.routeName: (context) => const TeacherStdRoom(),
+        StudentRecord.routeName: (context) => const StudentRecord(),
+        StudentPerformance.routeName: (context) => const StudentPerformance(),
+        QuizPerformance.routeName: (context) => const QuizPerformance(),
+        TeacherTestScreen.routeName: (context) => const TeacherTestScreen(),
       },
     );
   }

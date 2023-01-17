@@ -7,14 +7,21 @@ class CustomTexts {
   final String stdRecord = 'STUDENT RECORD';
   final String quiz = 'QUIZ / ACCESSMENTS';
   final String uploadRst = 'UPLOAD RESULT';
+  final String sn = "SN";
   //student details
   final String stdInfo = "STUDENT INFO";
-  final String stdName = "NAME: ";
-  final String stdId = "ID: ";
-  final String department = "DEPT: ";
-  final String level = "LEVEL: ";
-  final String age = "AGE: ";
-  final String contact = "CONTACT: ";
+  final String stdName = "NAME";
+  final String stdId = "ID";
+  final String department = "DEPT";
+  final String level = "LEVEL";
+  final String age = "AGE";
+  final String contact = "PHONE";
+  final String homeAddress = "HOME ADD.";
+  final String sex = "SEX";
+  // guardian details
+  final String guardianFirstName = "GUARDIAN FIRST";
+  final String guardianLastName = "GUARDIAN LAST";
+  final String guardianContact = "GUARDIAN PHONE";
 }
 
 class CustomSizes {

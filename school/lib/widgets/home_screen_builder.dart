@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../screens/teacher_std_room.dart';
-import '../screens/student_room.dart';
 import '../widgets/helpers.dart';
 import '../widgets/widget_card.dart';
 
